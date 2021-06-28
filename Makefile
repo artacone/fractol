@@ -40,7 +40,7 @@ $(LIBMLX):
 	make -C $(LIBMLX_DIR)
 
 $(NAME): $(OBJS) $(LIBFT) $(LIBMLX)
-	$(CC) $(LDFLAGS) $< -o $@
+	$(CC) $< -o $@ $(LDFLAGS)
 
 clean:
 		$(RM) -r $(OBJS_DIR)
