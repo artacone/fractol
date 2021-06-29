@@ -6,7 +6,8 @@ OBJS_DIR		=	./objs/
 
 HEADERS_DIR		=	./includes/
 
-SRCS			=	$(SRCS_DIR)main.c
+SRCS			=	$(SRCS_DIR)main.c \
+					$(SRCS_DIR)fractal.c
 
 HEADERS			=	$(wildcard $(HEADERS_DIR)*.h)
 
@@ -40,7 +41,7 @@ $(LIBMLX):
 	make -C $(LIBMLX_DIR)
 
 $(NAME): $(OBJS) $(LIBFT) $(LIBMLX)
-	$(CC) $< -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 clean:
 		$(RM) -r $(OBJS_DIR)
