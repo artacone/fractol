@@ -6,8 +6,7 @@ OBJS_DIR		=	./objs/
 
 HEADERS_DIR		=	./includes/
 
-SRCS			=	$(SRCS_DIR)main.c \
-					$(SRCS_DIR)fractal.c
+SRCS			=	$(wildcard $(SRCS_DIR)*.c)
 
 HEADERS			=	$(wildcard $(HEADERS_DIR)*.h)
 

@@ -1,95 +1,55 @@
 #include "../includes/fractol.h"
 
-#define RED		0x00FF0000
-#define GREEN	0x0000FF00
-#define BLUE	0x000000FF
-
-#define VIVID_RED		0x00FF0018
-#define DEEP_SAFFRON	0x00FFA52C
-#define MAXIMUM_YELLOW	0x00FFFF41
-#define AO				0x00008018
-#define BLUE_FLAG		0x000000F9
-#define PHILIPPINE_VIOLET	0x0086007D
-
-#define SCREEN_RED		0xCCCC0000
-#define SCREEN_GREEN	0xCC00CC00
-#define SCREEN_BLUE		0xCC0000CC
-
-int	create_trgb(int t, int r, int g, int b)
+/*
+ * TODO
+ * main arguments
+ * handle usage error
+ * help menu
+ * optimization
+ * moving with arrows
+ * more fractals
+ */
+static t_image	*init_image(void *mlx) // FIXME error handle
 {
-	return (t << 24 | r << 16 | g << 8 | b);
+	t_image	*image;
+
+	image = (t_image *)malloc(sizeof(t_image));
+	image->image = mlx_new_image(mlx, WIN_WIDTH, WIN_HEIGHT);
+	image->address = mlx_get_data_addr(image->image, &(image->bits_per_pixel),
+									   &(image->line_length), &(image->endian));
+	return (image);
 }
 
-int	get_t(int trgb)
+static t_manager	*init_manager() // FIXME error handle
 {
-	return (trgb & (0xFF << 24));
-}
+	t_manager	*manager;
 
-int	get_r(int trgb)
-{
-	return (trgb & (0xFF << 16));
-}
+	manager = (t_manager *)malloc(sizeof(t_manager));
+	manager->mlx = mlx_init();
+	manager->window = mlx_new_window(manager->mlx, WIN_WIDTH, WIN_HEIGHT, "fract-ol");
+	manager->image = init_image(manager->mlx);
 
-int	get_g(int trgb)
-{
-	return (trgb & (0xFF << 8));
-}
+	init_complex(&(manager->min), -2.0, -2.0);
+	manager->max.re = 2.0;
+	manager->max.im = manager->min.im + (manager->max.re - manager->min.re) * WIN_HEIGHT / WIN_WIDTH;
 
-int	get_b(int trgb)
-{
-	return (trgb & 0xFF);
-}
-
-int	add_shade(double distance, int color)
-{
-	return ((color & 0x00FFFFFF) | ((int)(color * (1 - distance)) & 0xFF000000));
-}
-
-int	get_opposite(int color)
-{
-	return (color ^ 0x00FFFFFF);
-}
-
-int	key_hook(int keycode, t_vars *vars)
-{
-	if (keycode == 53)
-	{
-		mlx_destroy_window(vars->mlx, vars->win);
-		exit(0);
-	}
-	return ((int)vars);
-}
+	init_complex(&(manager->k),-0.4, 0.6);
 
 
-int	close_win(int keycode, t_vars *vars)
-{
-	printf("Farewell, friend!\n\n");
-	exit(0);
-	(void)vars;
-	return (keycode);
+	mlx_hook(manager->window, EVENT_KEY_PRESS, MASK_KEY_PRESS, key_hook, manager);
+	mlx_hook(manager->window, EVENT_DESTROY, MASK_DESTROY, close_win, manager);
+	mlx_hook(manager->window, EVENT_BUTTON_PRESS, MASK_BUTTON_PRESS, zoom, manager);
+	return (manager);
 }
 
 int main()
 {
-	t_vars	vars;
-	t_data	img;
+	t_manager	*manager;
 
-	vars.mlx = mlx_init();
-	vars.win = mlx_new_window(vars.mlx, WIN_WIDTH, WIN_HEIGHT, "win1");
-	vars.data = &img;
+	manager = init_manager();
 
-	mlx_hook(vars.win, 2, 1L<<0, key_hook, &vars);
-	mlx_hook(vars.win, 17, 0L, close_win, &vars);
+	draw_fractal(manager);
 
-
-	img.img = mlx_new_image(vars.mlx, WIN_WIDTH, WIN_HEIGHT);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel,
-								 &img.line_length, &img.endian);
-
-	mandelbrot(&img);
-//	julia(&img);
-	mlx_put_image_to_window(vars.mlx, vars.win, img.img, 0, 0);
-
-	mlx_loop(vars.mlx);
+	mlx_loop(manager->mlx);
 	return (0);
 }
