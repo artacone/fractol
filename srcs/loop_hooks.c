@@ -26,27 +26,24 @@ static double	interpolate(double start, double end, double interpolation)
 
 int	zoom(int button, int x, int y, t_manager *manager)
 {
-	t_complex	mouse;
-	double		interpolation;
-	double		zoom;
+	double	mouse_x;
+	double	mouse_y;
+	double	interpolation;
+	double	zoom;
 
 	if (button == MOUSE_SCROLL_UP || button == MOUSE_SCROLL_DOWN)
 	{
-		printf("Zooming...1\n");
-		init_complex(&mouse,
-					 (double)x / (WIN_WIDTH / (manager->max.re - manager->min.re)) + manager->min.re,
-					 (double)y / (WIN_HEIGHT / (manager->max.im - manager->min.im)) * (-1) + manager->max.im);
-
-		printf("Zooming...\n");
+		mouse_x = (double)x / (WIN_WIDTH / (manager->fractal->max_re - manager->fractal->min_re)) + manager->fractal->min_re;
+		mouse_y = (double)y / (WIN_HEIGHT / (manager->fractal->max_im - manager->fractal->min_im)) * (-1) + manager->fractal->max_im;
 		if (button == MOUSE_SCROLL_UP)
 			zoom = 0.80;
 		else
 			zoom = 1.20;
 		interpolation = 1.0 / zoom;
-		manager->min.re = interpolate(mouse.re, manager->min.re, interpolation);
-		manager->min.im = interpolate(mouse.im, manager->min.im, interpolation);
-		manager->max.re = interpolate(mouse.re, manager->max.re, interpolation);
-		manager->max.im = interpolate(mouse.im, manager->max.im, interpolation);
+		manager->fractal->min_re = interpolate(mouse_x, manager->fractal->min_re, interpolation);
+		manager->fractal->min_im = interpolate(mouse_y, manager->fractal->min_im, interpolation);
+		manager->fractal->max_re = interpolate(mouse_x, manager->fractal->max_re, interpolation);
+		manager->fractal->max_im = interpolate(mouse_y, manager->fractal->max_im, interpolation);
 		draw_fractal(manager);
 	}
 	return (0);

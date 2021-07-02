@@ -17,16 +17,16 @@ void	my_mlx_pixel_put(t_image *image, int x, int y, int color)
 int	get_color(int iteration, t_manager *manager)
 {
 	// stepwise
-//	return ((int)(iteration * 0x00111111) & 0x00ffffff);
+	return ((int)(iteration * 0x00111111) & 0x00ffffff);
 	// grayscale
 
 	(void)manager;
-	double t = (double)iteration / (double)MAX_ITERATION;
-	int red = (int)(9 * (1 - t) * pow(t, 3) * 255);
-	int green = (int)(15 * pow((1 - t), 2) * pow(t, 2) * 255);
-	int blue = (int)(8.5 * pow((1 - t), 3) * t * 255);
-	int color = red << 16 | green << 8 | blue;
-	return (color);
+//	double t = (double)iteration / (double)MAX_ITERATION;
+//	int red = (int)(9 * (1 - t) * pow(t, 3) * 255);
+//	int green = (int)(15 * pow((1 - t), 2) * pow(t, 2) * 255);
+//	int blue = (int)(8.5 * pow((1 - t), 3) * t * 255);
+//	int color = red << 16 | green << 8 | blue;
+//	return (color);
 }
 
 void	draw_fractal(t_manager *manager) // FIXME decompose color
@@ -35,19 +35,18 @@ void	draw_fractal(t_manager *manager) // FIXME decompose color
 	int	y;
 	int	color;
 
-	init_complex(&(manager->factor),
-				 (manager->max.re - manager->min.re) / (WIN_WIDTH - 1),
-				 (manager->max.im - manager->min.im) / (WIN_HEIGHT - 1));
+	manager->fractal->scale_re = (manager->fractal->max_re - manager->fractal->min_re) / (WIN_WIDTH - 1); // FIXME make local
+	manager->fractal->scale_im = (manager->fractal->max_im - manager->fractal->min_im) / (WIN_HEIGHT - 1);
 	y = 0;
 	while (y < WIN_HEIGHT)
 	{
-		manager->c.im = manager->max.im - y * manager->factor.im;
+		manager->fractal->c_im = manager->fractal->max_im - y * manager->fractal->scale_im;
 		x = 0;
 		while (x < WIN_WIDTH)
 		{
-			manager->c.re = manager->min.re + x * manager->factor.re;
-			int i = mandelbrot(manager);
-//			int i = julia(manager);
+			manager->fractal->c_re = manager->fractal->min_re + x * manager->fractal->scale_re;
+//			int i = mandelbrot(manager);
+			int i = julia(manager);
 			color = get_color(i, manager);
 			my_mlx_pixel_put(manager->image, x, y, color);
 			x++;
@@ -59,16 +58,23 @@ void	draw_fractal(t_manager *manager) // FIXME decompose color
 
 int	mandelbrot(t_manager *manager) // FIXME optimization
 {
-	int			i;
-	t_complex	z;
+	int		i;
+	double	z_re;
+	double	z_im;
+	double	z_re_2;
+	double	z_im_2;
 
 	i = 0;
-	init_complex(&z, manager->c.re, manager->c.im);
-	while (z.re * z.re + z.im * z.im <= 4 && i < MAX_ITERATION)
+	z_re = manager->fractal->c_re;
+	z_im = manager->fractal->c_im;
+	z_re_2 = z_re * z_re;
+	z_im_2 = z_im * z_im;
+	while (z_re_2 + z_im_2 <= 4 && i < MAX_ITERATION)
 	{
-		init_complex(&z,
-					 z.re * z.re - z.im * z.im + manager->c.re,
-					 2.0 * z.re * z.im + manager->c.im);
+		z_im = (z_re + z_re) * z_im + manager->fractal->c_im;
+		z_re = z_re_2 - z_im_2 + manager->fractal->c_re;
+		z_re_2 = z_re * z_re;
+		z_im_2 = z_im * z_im;
 		i++;
 	}
 	return (i);
@@ -76,16 +82,23 @@ int	mandelbrot(t_manager *manager) // FIXME optimization
 
 int	julia(t_manager *manager)
 {
-	int			i;
-	t_complex	z;
+	int		i;
+	double	z_re;
+	double	z_im;
+	double	z_re_2;
+	double	z_im_2;
 
 	i = 0;
-	init_complex(&z, manager->c.re, manager->c.im);
-	while (z.re * z.re + z.im * z.im <= 4 && i < MAX_ITERATION)
+	z_re = manager->fractal->c_re;
+	z_im = manager->fractal->c_im;
+	z_re_2 = z_re * z_re;
+	z_im_2 = z_im * z_im;
+	while (z_re_2 + z_im_2 <= 4 && i < MAX_ITERATION)
 	{
-		init_complex(&z,
-					z.re * z.re - z.im * z.im + manager->k.re,
-					2.0 * z.re * z.im + manager->k.im);
+		z_im = 2 * z_re * z_im + manager->fractal->k_re;
+		z_re = z_re_2 - z_im_2 + manager->fractal->k_im;
+		z_re_2 = z_re * z_re;
+		z_im_2 = z_im * z_im;
 		i++;
 	}
 	return (i);

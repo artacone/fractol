@@ -10,7 +10,7 @@
 
 #define WIN_HEIGHT			1080
 #define WIN_WIDTH			1920
-#define MAX_ITERATION		100
+#define MAX_ITERATION		250
 
 # define MOUSE_SCROLL_UP	4
 # define MOUSE_SCROLL_DOWN	5
@@ -32,6 +32,11 @@
 # define MASK_EXPOSE							1L << 15U
 # define MASK_DESTROY							1L << 17U
 
+# define ERROR_ALLOC		1
+# define ERROR_MLX_INIT		-1
+# define ERROR_WIN_INIT		-2
+# define ERROR_IMG_ADDR		-3
+
 typedef struct s_complex {
 	double	re;
 	double	im;
@@ -46,28 +51,31 @@ typedef struct s_image
 	int		endian;
 }	t_image;
 
+// TODO Add options
+typedef struct s_fractal
+{
+	char		*name;
+	double		min_re;
+	double		min_im;
+	double		max_re;
+	double		max_im;
+	double		scale_re;
+	double		scale_im;
+	double		c_re;
+	double		c_im;
+	double		k_re;
+	double		k_im;
+}	t_fractal;
+
 typedef struct s_manager
 {
 	void		*mlx;
 	void		*window;
 	t_image		*image;
-	t_complex	min;
-	t_complex	max;
-	t_complex	factor;
-	t_complex	c;
-	t_complex	k;
+	t_fractal	*fractal;
 }	t_manager;
 
-// TODO Add options
-typedef struct s_fractal
-{
-	char		*name;
-	t_complex	min;
-	t_complex	max;
-	t_complex	factor;
-	t_complex	c;
-	t_complex	k;
-}	t_fractal;
+
 
 int		mandelbrot(t_manager *manager);
 int		julia(t_manager *manager);
@@ -78,5 +86,7 @@ void	draw_fractal(t_manager *manager);
 int	key_hook(int keycode, t_manager *manager);
 int	close_win(int keycode, t_manager *manager);
 int	zoom(int button, int x, int y, t_manager *manager);
+
+void	handle_error(int error_code);
 
 #endif
