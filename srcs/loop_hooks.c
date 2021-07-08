@@ -59,7 +59,7 @@ int	key_hook(int keycode, t_manager *manager)
 	else if (keycode == KEY_C)
 	{
 		manager->fractal->color += 1;
-		manager->fractal->color %= 2;
+		manager->fractal->color %= 3;
 	}
 	draw_fractal(manager);
 	return (keycode);

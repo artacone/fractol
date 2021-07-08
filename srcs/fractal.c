@@ -14,7 +14,7 @@ void	my_mlx_pixel_put(t_image *image, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
-int	get_color(int iteration, t_manager *manager)
+int	get_color(double r, int iteration, t_manager *manager)
 {
 	int	color_option;
 
@@ -31,7 +31,18 @@ int	get_color(int iteration, t_manager *manager)
 		int color = red << 16 | green << 8 | blue;
 		return (color);
 	}
-	else
+	else if (color_option == 2)
+	{
+		double	log_zn;
+		double	nu;
+
+		log_zn = log(r) / 2;
+		if (log_zn <= 0)
+			log_zn = 1;
+		nu = iteration + 1 - log2(log_zn);
+		return ((int)(nu * 0x00111111) & 0x00ffffff);
+	}
+	else // Never reached
 		return 1;
 }
 
@@ -39,10 +50,12 @@ void	draw_fractal(t_manager *manager) // FIXME decompose color
 {
 	int	x;
 	int	y;
+	int	i;
+	double	r;
 	int	color;
 
-	manager->fractal->scale_re = (manager->fractal->max_re - manager->fractal->min_re) / (WIN_WIDTH - 1); // FIXME make local
-	manager->fractal->scale_im = (manager->fractal->max_im - manager->fractal->min_im) / (WIN_HEIGHT - 1);
+	manager->fractal->scale_re = (manager->fractal->max_re - manager->fractal->min_re) / WIN_WIDTH; // FIXME make local
+	manager->fractal->scale_im = (manager->fractal->max_im - manager->fractal->min_im) / WIN_HEIGHT;
 	y = 0;
 	while (y < WIN_HEIGHT)
 	{
@@ -51,9 +64,8 @@ void	draw_fractal(t_manager *manager) // FIXME decompose color
 		while (x < WIN_WIDTH)
 		{
 			manager->fractal->c_re = manager->fractal->min_re + x * manager->fractal->scale_re;
-//			int i = mandelbrot(manager);
-			int i = mandelbrot(manager);
-			color = get_color(i, manager);
+			r = mandelbrot(&i, manager);
+			color = get_color(r, i, manager);
 			my_mlx_pixel_put(manager->image, x, y, color);
 			x++;
 		}
@@ -62,50 +74,80 @@ void	draw_fractal(t_manager *manager) // FIXME decompose color
 	mlx_put_image_to_window(manager->mlx, manager->window, manager->image->image, 0, 0);
 }
 
-int	mandelbrot(t_manager *manager) // FIXME optimization
+int	does_converge(int *i, double z_re, double z_im, t_manager *manager)
 {
-	int		i;
+	static double	z_re_old;
+	static double	z_im_old;
+	static int		period;
+
+	if (*i == 0)
+	{
+		z_re_old = 0;
+		z_im_old = 0;
+		period = 0;
+		return (0);
+	}
+	if ((fabs(z_re - z_re_old) < EPSILON) && (fabs(z_im - z_im_old) < EPSILON))
+	{
+		*i = manager->fractal->max_iter;
+		return (1);
+	}
+	period++;
+	if (period > 20)
+	{
+		z_im_old = z_im;
+		z_re_old = z_re;
+		period = 0;
+	}
+	return (0);
+}
+
+double	mandelbrot(int *i, t_manager *manager) // FIXME optimization
+{
 	double	z_re;
 	double	z_im;
 	double	z_re_2;
 	double	z_im_2;
 
-	i = 0;
+	*i = 0;
 	z_re = manager->fractal->c_re;
 	z_im = manager->fractal->c_im;
 	z_re_2 = z_re * z_re;
 	z_im_2 = z_im * z_im;
-	while (z_re_2 + z_im_2 <= 4 && i < manager->fractal->max_iter)
+	does_converge(i, z_re, z_im, manager);
+	while (z_re_2 + z_im_2 <= 4 && *i < manager->fractal->max_iter
+			&& !does_converge(i, z_re, z_im, manager))
 	{
 		z_im = (z_re + z_re) * z_im + manager->fractal->c_im;
 		z_re = z_re_2 - z_im_2 + manager->fractal->c_re;
 		z_re_2 = z_re * z_re;
 		z_im_2 = z_im * z_im;
-		i++;
+		(*i)++;
 	}
-	return (i);
+	return (z_re_2 + z_im_2);
 }
 
-int	julia(t_manager *manager)
+double	julia(int *i, t_manager *manager)
 {
-	int		i;
 	double	z_re;
 	double	z_im;
 	double	z_re_2;
 	double	z_im_2;
 
-	i = 0;
+	*i = 0;
 	z_re = manager->fractal->c_re;
 	z_im = manager->fractal->c_im;
 	z_re_2 = z_re * z_re;
 	z_im_2 = z_im * z_im;
-	while (z_re_2 + z_im_2 <= 4 && i < manager->fractal->max_iter)
+	does_converge(i, z_re, z_im, manager);
+	while (z_re_2 + z_im_2 <= 4 && *i < manager->fractal->max_iter
+			&& !does_converge(i, z_re, z_im, manager))
 	{
-		z_im = 2 * z_re * z_im + manager->fractal->k_re;
+		z_im = (z_re + z_re) * z_im + manager->fractal->k_re;
 		z_re = z_re_2 - z_im_2 + manager->fractal->k_im;
 		z_re_2 = z_re * z_re;
 		z_im_2 = z_im * z_im;
-		i++;
+		(*i)++;
 	}
-	return (i);
+	return (z_re_2 + z_im_2);
 }

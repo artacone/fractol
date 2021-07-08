@@ -9,7 +9,8 @@
 
 #define WIN_HEIGHT			1080
 #define WIN_WIDTH			1920
-#define MAX_ITERATION		50
+#define MAX_ITERATION		100
+#define EPSILON				0.000001
 
 # define MOUSE_SCROLL_UP	4
 # define MOUSE_SCROLL_DOWN	5
@@ -87,8 +88,8 @@ typedef struct s_manager
 
 
 
-int		mandelbrot(t_manager *manager);
-int		julia(t_manager *manager);
+double	mandelbrot(int *i, t_manager *manager);
+double	julia(int *i, t_manager *manager);
 void	init_complex(t_complex *this, double re, double im);
 void	draw_fractal(t_manager *manager);
 
