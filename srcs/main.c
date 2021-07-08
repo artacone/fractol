@@ -6,7 +6,7 @@
  * handle usage error
  * help menu
  * optimization
- * moving with arrows
+ * more colorings
  * more fractals
  */
 
@@ -25,7 +25,7 @@ static t_image	*init_image(void *mlx)
 	return (image);
 }
 
-static t_fractal	*init_fractal(void) // TODO different fractals
+static t_fractal	*init_fractal(void) // TODO different fractals; add defines
 {
 	t_fractal	*fractal;
 
@@ -39,7 +39,8 @@ static t_fractal	*init_fractal(void) // TODO different fractals
 	fractal->max_im = fractal->min_im + (fractal->max_re - fractal->min_re) * WIN_HEIGHT / WIN_WIDTH;
 	fractal->k_re = -0.4;
 	fractal->k_im = 0.6;
-
+	fractal->max_iter = MAX_ITERATION;
+	fractal->color = 0;
 	return (fractal);
 }
 
@@ -61,11 +62,11 @@ static t_manager	*init_manager()
 
 	mlx_hook(manager->window, EVENT_KEY_PRESS, MASK_KEY_PRESS, key_hook, manager);
 	mlx_hook(manager->window, EVENT_DESTROY, MASK_DESTROY, close_win, manager);
-	mlx_hook(manager->window, EVENT_BUTTON_PRESS, MASK_BUTTON_PRESS, zoom, manager);
+	mlx_hook(manager->window, EVENT_BUTTON_PRESS, MASK_BUTTON_PRESS, mouse_button, manager);
 	return (manager);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	t_manager	*manager;
 
@@ -74,5 +75,7 @@ int main()
 	draw_fractal(manager);
 
 	mlx_loop(manager->mlx);
+	(void)argc;
+	(void)argv;
 	return (0);
 }

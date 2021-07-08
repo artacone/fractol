@@ -16,17 +16,23 @@ void	my_mlx_pixel_put(t_image *image, int x, int y, int color)
 
 int	get_color(int iteration, t_manager *manager)
 {
-	// stepwise
-	return ((int)(iteration * 0x00111111) & 0x00ffffff);
-	// grayscale
+	int	color_option;
 
-	(void)manager;
-//	double t = (double)iteration / (double)MAX_ITERATION;
-//	int red = (int)(9 * (1 - t) * pow(t, 3) * 255);
-//	int green = (int)(15 * pow((1 - t), 2) * pow(t, 2) * 255);
-//	int blue = (int)(8.5 * pow((1 - t), 3) * t * 255);
-//	int color = red << 16 | green << 8 | blue;
-//	return (color);
+	color_option = manager->fractal->color;
+	if (color_option == 0) // FIXME
+		return ((int)(iteration * 0x00111111) & 0x00ffffff);
+
+	else if (color_option == 1)
+	{
+		double t = (double)iteration / (double)(manager->fractal->max_iter);
+		int red = (int) (9 * (1 - t) * pow(t, 3) * 255);
+		int green = (int) (15 * pow((1 - t), 2) * pow(t, 2) * 255);
+		int blue = (int) (8.5 * pow((1 - t), 3) * t * 255);
+		int color = red << 16 | green << 8 | blue;
+		return (color);
+	}
+	else
+		return 1;
 }
 
 void	draw_fractal(t_manager *manager) // FIXME decompose color
@@ -46,7 +52,7 @@ void	draw_fractal(t_manager *manager) // FIXME decompose color
 		{
 			manager->fractal->c_re = manager->fractal->min_re + x * manager->fractal->scale_re;
 //			int i = mandelbrot(manager);
-			int i = julia(manager);
+			int i = mandelbrot(manager);
 			color = get_color(i, manager);
 			my_mlx_pixel_put(manager->image, x, y, color);
 			x++;
@@ -69,7 +75,7 @@ int	mandelbrot(t_manager *manager) // FIXME optimization
 	z_im = manager->fractal->c_im;
 	z_re_2 = z_re * z_re;
 	z_im_2 = z_im * z_im;
-	while (z_re_2 + z_im_2 <= 4 && i < MAX_ITERATION)
+	while (z_re_2 + z_im_2 <= 4 && i < manager->fractal->max_iter)
 	{
 		z_im = (z_re + z_re) * z_im + manager->fractal->c_im;
 		z_re = z_re_2 - z_im_2 + manager->fractal->c_re;
@@ -93,7 +99,7 @@ int	julia(t_manager *manager)
 	z_im = manager->fractal->c_im;
 	z_re_2 = z_re * z_re;
 	z_im_2 = z_im * z_im;
-	while (z_re_2 + z_im_2 <= 4 && i < MAX_ITERATION)
+	while (z_re_2 + z_im_2 <= 4 && i < manager->fractal->max_iter)
 	{
 		z_im = 2 * z_re * z_im + manager->fractal->k_re;
 		z_re = z_re_2 - z_im_2 + manager->fractal->k_im;
