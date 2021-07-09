@@ -6,11 +6,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "../mlx/mlx.h"
+#include "../libft/includes/libft.h"
 
-#define WIN_HEIGHT			1080
-#define WIN_WIDTH			1920
-#define MAX_ITERATION		100
-#define EPSILON				0.000001
+#define COLOR			0xffcccc
+#define WIN_HEIGHT		1080
+#define WIN_WIDTH		1920
+#define MAX_ITERATION	100
+#define EPSILON			0.000001
+#define ZOOM_IN_SCALE	1.20
+#define ZOOM_OUT_SCALE	0.80
+#define SHIFT_SCALE		0.10
 
 # define MOUSE_SCROLL_UP	4
 # define MOUSE_SCROLL_DOWN	5
@@ -45,6 +50,18 @@
 # define ERROR_MLX_INIT		-1
 # define ERROR_WIN_INIT		-2
 # define ERROR_IMG_ADDR		-3
+# define ERROR_USAGE		-4
+
+
+# define MANDELBROT		0
+# define JULIA			1
+# define BURNING_SHIP	2
+
+
+# define MIN_RE			-2.0
+# define MIN_IM			-2.0
+# define MAX_RE			2.0
+# define MAX_IM			(MIN_IM + (MAX_RE - MIN_RE) * WIN_HEIGHT / WIN_WIDTH)
 
 typedef struct s_complex {
 	double	re;
@@ -63,7 +80,7 @@ typedef struct s_image
 // TODO Add options
 typedef struct s_fractal
 {
-	char		*name;
+	int			name;
 	double		min_re;
 	double		min_im;
 	double		max_re;
@@ -88,10 +105,12 @@ typedef struct s_manager
 
 
 
-double	mandelbrot(int *i, t_manager *manager);
-double	julia(int *i, t_manager *manager);
-void	init_complex(t_complex *this, double re, double im);
+double	mandelbrot(int *i, t_fractal *fractal);
+double	julia(int *i, t_fractal *fractal);
+double	burning_ship(int *i, t_fractal *fractal);
 void	draw_fractal(t_manager *manager);
+
+t_manager	*init_manager(int argc, char *argv[]);
 
 
 int	key_hook(int keycode, t_manager *manager);

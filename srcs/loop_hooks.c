@@ -8,59 +8,54 @@ int	close_win(int keycode, t_manager *manager)
 	return (keycode);
 }
 
-static void	change_max_iter(int keycode, t_manager *manager)
-{
-	if (keycode == KEY_Q)
-	{
-		manager->fractal->max_iter = (int)(manager->fractal->max_iter * 0.95);
-	}
-	else
-	{
-		manager->fractal->max_iter = (int)(manager->fractal->max_iter * 1.05);
-	}
-}
-
-static void	move_plane(int keycode, t_manager *manager)
+static void	move_plane(int keycode, t_fractal *fractal)
 {
 	double	shift;
 
-	shift = (manager->fractal->max_re - manager->fractal->min_re) * 0.05;
+	shift = (fractal->max_re - fractal->min_re) * SHIFT_SCALE;
 	if (keycode == KEY_A)
 	{
-		manager->fractal->min_re -= shift;
-		manager->fractal->max_re -= shift;
+		fractal->min_re -= shift;
+		fractal->max_re -= shift;
 	}
 	else if (keycode == KEY_D)
 	{
-		manager->fractal->min_re += shift;
-		manager->fractal->max_re += shift;
+		fractal->min_re += shift;
+		fractal->max_re += shift;
 	}
 	else if (keycode == KEY_W)
 	{
-		manager->fractal->min_im += shift;
-		manager->fractal->max_im += shift;
+		fractal->min_im += shift;
+		fractal->max_im += shift;
 	}
 	else
 	{
-		manager->fractal->min_im -= shift;
-		manager->fractal->max_im -= shift;
+		fractal->min_im -= shift;
+		fractal->max_im -= shift;
 	}
 }
 
 int	key_hook(int keycode, t_manager *manager)
 {
+	t_fractal	*fractal;
+
+	fractal = manager->fractal;
 	if (keycode == KEY_ESC)
 		close_win(keycode, manager);
-	else if (keycode == KEY_Q || keycode == KEY_E)
-		change_max_iter(keycode, manager);
+	else if (keycode == KEY_Q)
+		fractal->max_iter = (int)(fractal->max_iter * 0.95);
+	else if (keycode == KEY_E)
+		fractal->max_iter = (int)(fractal->max_iter * 1.05);
 	else if (keycode == KEY_A || keycode == KEY_S
-			|| keycode == KEY_D || keycode == KEY_W)
-		move_plane(keycode, manager);
+		|| keycode == KEY_D || keycode == KEY_W)
+		move_plane(keycode, fractal);
 	else if (keycode == KEY_C)
 	{
-		manager->fractal->color += 1;
-		manager->fractal->color %= 3;
+		fractal->color += 1;
+		fractal->color %= 4;
 	}
+	else
+		return (keycode);
 	draw_fractal(manager);
 	return (keycode);
 }
@@ -85,9 +80,9 @@ int	mouse_button(int button, int x, int y, t_manager *manager)
 	if (button == MOUSE_SCROLL_UP || button == MOUSE_SCROLL_DOWN)
 	{
 		if (button == MOUSE_SCROLL_UP)
-			zoom_scale = 1.20;
+			zoom_scale = ZOOM_IN_SCALE;
 		else
-			zoom_scale = 0.80;
+			zoom_scale = ZOOM_OUT_SCALE;
 		zoom(manager->fractal, x, y, zoom_scale);
 		draw_fractal(manager);
 	}
