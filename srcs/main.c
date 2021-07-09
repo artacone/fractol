@@ -1,4 +1,5 @@
 #include "../includes/fractol.h"
+#include "../includes/error.h"
 
 /*
  * TODO

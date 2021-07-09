@@ -1,4 +1,6 @@
 #include "../includes/fractol.h"
+#include "../includes/error.h"
+#include "../includes/events.h"
 
 static t_image	*init_image(void *mlx)
 {
@@ -75,7 +77,7 @@ static t_fractal	*init_fractal(int argc, char *argv[])
 	fractal->min_re = MIN_RE;
 	fractal->min_im = MIN_IM;
 	fractal->max_re = MAX_RE;
-	fractal->max_im = MAX_IM;
+	fractal->max_im = MIN_IM + (MAX_RE - MIN_RE) * WIN_HEIGHT / WIN_WIDTH;
 	fractal->max_iter = MAX_ITERATION;
 	fractal->color = 0;
 	return (fractal);

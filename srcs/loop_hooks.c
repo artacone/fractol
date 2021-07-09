@@ -1,8 +1,8 @@
 #include "../includes/fractol.h"
+#include "../includes/events.h"
 
 int	close_win(int keycode, t_manager *manager)
 {
-	printf("Farewell, friend!\n\n");
 	exit(0);
 	(void)manager;
 	return (keycode);

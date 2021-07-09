@@ -1,4 +1,6 @@
 #include "../includes/fractol.h"
+#include "../includes/error.h"
+#include <stdio.h>
 
 void	handle_error(int error_code)
 {
