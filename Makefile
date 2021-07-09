@@ -44,8 +44,8 @@ $(NAME): $(OBJS) $(LIBFT) $(LIBMLX)
 
 clean:
 		$(RM) -r $(OBJS_DIR)
-		make -C $(LIBFT_DIR) clean
-		make -C $(LIBMLX_DIR) clean
+		make -C $(LIBFT_DIR) fclean
+		make -C $(LIBMLX_DIR) fclean
 
 fclean: clean
 		$(RM) $(NAME)

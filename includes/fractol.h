@@ -6,8 +6,8 @@
 # include "../mlx/mlx.h"
 # include "../libft/includes/libft.h"
 
-# define WIN_HEIGHT		1080
-# define WIN_WIDTH		1920
+# define WIN_HEIGHT		600
+# define WIN_WIDTH		800
 # define MAX_ITERATION	100
 # define EPSILON		0.000001
 

@@ -32,7 +32,7 @@
 
 # define ZOOM_IN_SCALE			1.20
 # define ZOOM_OUT_SCALE			0.80
-# define SHIFT_SCALE			0.10
+# define SHIFT_SCALE			0.05
 
 int	key_hook(int keycode, t_manager *manager);
 int	close_win(int keycode, t_manager *manager);
